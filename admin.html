@@ -268,13 +268,66 @@
               <span>退房時確認無蓄意破壞、室內抽菸等行徑，會全額退還的唷~</span>
             </label>
             <input id="security_deposit" type="hidden">
-            
-            <label>
-              訂房訂金比例
-              <input id="booking_deposit_percent" placeholder="例如：50">
-            </label>
-            <input id="booking_deposit" type="hidden">
 
+            <div class="wide booking-deposit-card">
+              <strong class="booking-deposit-title">
+                訂房訂金
+              </strong>
+
+              <div class="booking-deposit-field">
+                <span>訂金類型</span>
+
+                <select id="booking_deposit_type">
+                  <option value="percent">
+                    依房價比例
+                  </option>
+
+                  <option value="fixed">
+                    固定金額
+                  </option>
+                </select>
+              </div>
+
+              <div
+                id="bookingDepositPercentField"
+                class="booking-deposit-field"
+              >
+                <span>訂金比例（%）</span>
+
+                <input
+                  id="booking_deposit_percent"
+                  type="number"
+                  min="0"
+                  max="100"
+                  placeholder="例如：50"
+                >
+              </div>
+
+              <div
+                id="bookingDepositAmountField"
+                class="booking-deposit-field"
+                hidden
+              >
+                <span>固定訂金金額</span>
+
+                <input
+                  id="booking_deposit_amount"
+                  type="number"
+                  min="0"
+                  placeholder="例如：15000"
+                >
+              </div>
+
+              <p class="booking-deposit-description">
+                完成匯款後才算保留房間。
+              </p>
+
+              <input
+                id="booking_deposit"
+                type="hidden"
+              >
+            </div>
+                     
             <label class="wide"
               >加床服務<textarea id="extra_bed"></textarea>
             </label>

@@ -153,16 +153,22 @@
   // ============================================================
   // 3. 全域狀態與欄位設定
   // ============================================================
-  let currentUser = null,
-    stays = [],
-    settings = [],
-    editing = null;
+  let currentUser = null;
+  let stays = [];
+  let settings = [];
+  let editing = null;
+  let contactLinkSortable = null;
+
   let facilityOptions = [];
   let stayTypeOptions = [];
+  let selectedFacilityIds = [];
+
+  let priceNotes = [];
+  let bookingNotices = [];
+  let contactLinks = [];
   let stayTypeSortable = null;
   let activeGalleryCategory = "day";
   let gallerySortable = null;
-  let selectedFacilityIds = [];
   let facilitySortable = null;
   let roomTypeRows = [];
   $("name").addEventListener("input", () => {
@@ -974,15 +980,16 @@
         element.checked = s ? Boolean(s[field]) : true;
       } else {
         const defaultValues = {
+           checkin:
+            "下午3點（After 3 PM）",
+
+          checkout:
+            "上午11:00（Before 11 AM）\n" +
+            "※ 如需要加時間請提前告知 ※",
+
           note:
             "以上報價不適用於春節、音樂祭、特殊節日。\n" +
             "農曆春節、特殊假日及連假期間：價格另計。",
-
-          security_deposit:
-            "$15000（退房時確認無蓄意破壞、室內抽菸等行徑，會全額退還的唷~）",
-
-          booking_deposit:
-            "訂房價格的50%（完成匯款後才算保留房間）",
 
           extra_bed:
             "☒ / ☑ 平日$800/人、連續假日$1000/人"
@@ -995,6 +1002,77 @@
             : defaultValues[field] || "");
       }
     });
+
+    const securityAmount =
+      $("security_deposit_amount").value.trim();
+
+    const bookingPercent =
+      $("booking_deposit_percent").value.trim();
+
+
+    if (s) {
+      const securityMatch = String(s.security_deposit || "")
+        .match(/\$?([\d,]+)/);
+
+      $("security_deposit_amount").value =
+        securityMatch
+          ? securityMatch[1].replace(/,/g, "")
+          : "";
+
+      const bookingMatch = String(s.booking_deposit || "")
+        .match(/(\d+)%/);
+
+      $("booking_deposit_percent").value =
+        bookingMatch
+          ? bookingMatch[1]
+          : "";
+    } else {
+      $("security_deposit_amount").value = "15000";
+      $("booking_deposit_percent").value = "50";
+    }
+    // ============================================================
+    // 解析訂房訂金：比例或固定金額
+    // ============================================================
+    if (s) {
+      const bookingText = String(
+        s.booking_deposit || ""
+      );
+
+      const percentMatch =
+        bookingText.match(/(\d+)\s*%/);
+
+      const fixedMatch =
+        bookingText.match(
+          /固定訂金\s*\$?\s*([\d,]+)/
+        );
+
+      if (percentMatch) {
+        $("booking_deposit_type").value = "percent";
+        $("booking_deposit_percent").value =
+          percentMatch[1];
+
+        $("booking_deposit_amount").value = "";
+      } else if (fixedMatch) {
+        $("booking_deposit_type").value = "fixed";
+        $("booking_deposit_amount").value =
+          fixedMatch[1].replace(/,/g, "");
+
+        $("booking_deposit_percent").value = "";
+      } else {
+        $("booking_deposit_type").value = "percent";
+        $("booking_deposit_percent").value = "50";
+        $("booking_deposit_amount").value = "";
+      }
+    } else {
+      // 新增民宿預設為比例制 50%
+      $("booking_deposit_type").value = "percent";
+      $("booking_deposit_percent").value = "50";
+      $("booking_deposit_amount").value = "";
+    }
+
+    // 根據類型顯示正確欄位
+    updateBookingDepositFields();
+
     roomTypeRows = parseRoomTypes(s?.room_types || "");
 
     if (!roomTypeRows.length && !s) {
@@ -1130,7 +1208,12 @@
   $("stayForm").addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    
+    const saveBtn = event.submitter;
+    const originalText = saveBtn.textContent;
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = "儲存中…";
+
     try {
       const isEdit = Boolean(editing);
 
@@ -1152,6 +1235,35 @@
           row[field] = element.value.trim();
         }
       });
+
+      // ============================================================
+      // 組合入住押金與訂房訂金完整文字
+      // ============================================================
+      const securityAmount =
+        $("security_deposit_amount").value.trim();
+
+      row.security_deposit = securityAmount
+        ? `$${securityAmount}（退房時確認無蓄意破壞、室內抽菸等行徑，會全額退還的唷~）`
+        : "";
+
+      const bookingType =
+        $("booking_deposit_type").value;
+
+      const bookingPercent =
+        $("booking_deposit_percent").value.trim();
+
+      const bookingAmount =
+        $("booking_deposit_amount").value.trim();
+
+      if (bookingType === "percent") {
+        row.booking_deposit = bookingPercent
+          ? `訂房價格的${bookingPercent}%（完成匯款後才算保留房間）`
+          : "";
+      } else {
+        row.booking_deposit = bookingAmount
+          ? `固定訂金 $${bookingAmount}（完成匯款後才算保留房間）`
+          : "";
+      }
 
       if (!row.slug) {
         row.slug = generateSlug(row.name);
@@ -1210,6 +1322,10 @@
       }
     } catch (error) {
       alert(error.message);
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = originalText;
+
     }
   });
   $("coverFile").addEventListener("change", (e) => {
@@ -1769,8 +1885,6 @@
   // ============================================================
   // 11. 價格備註 CRUD 與拖曳排序
   // ============================================================
-  let priceNotes = [];
-
   async function loadPriceNotes() {
     const { data, error } = await db
       .from("price_notes")
@@ -1959,8 +2073,6 @@
   // ============================================================
   // 12. 訂房須知 CRUD 與拖曳排序
   // ============================================================
-  let bookingNotices = [];
-
   async function loadBookingNotices() {
     const { data, error } = await db
       .from("booking_notices")
@@ -2081,6 +2193,33 @@
       },
     });
   }
+  // ============================================================
+// 訂房訂金類型切換
+// ============================================================
+function updateBookingDepositFields() {
+  const typeSelect = $("booking_deposit_type");
+  const percentField = $("bookingDepositPercentField");
+  const amountField = $("bookingDepositAmountField");
+
+  if (!typeSelect || !percentField || !amountField) {
+    console.warn("找不到訂金類型切換欄位");
+    return;
+  }
+
+  const isPercent = typeSelect.value === "percent";
+
+  // 比例制：顯示比例，隱藏固定金額
+  percentField.hidden = !isPercent;
+
+  // 固定金額：顯示金額，隱藏比例
+  amountField.hidden = isPercent;
+}
+
+// 只綁定一次
+$("booking_deposit_type")?.addEventListener(
+  "change",
+  updateBookingDepositFields
+);
   $("newBookingNoticeBtn").addEventListener("click", async () => {
     const { error } = await db.from("booking_notices").insert({
       title: "新須知",
@@ -2158,8 +2297,6 @@
   // ============================================================
   // 13. 聯絡方式 CRUD 與拖曳排序
   // ============================================================
-  let contactLinks = [];
-
   async function loadContactLinks() {
     const { data, error } = await db
       .from("contact_links")
@@ -2377,8 +2514,6 @@
     initContactLinkSortable();
   }
 
-  let contactLinkSortable = null;
-
   function initContactLinkSortable() {
     const container = $("contactLinkList");
 
@@ -2469,4 +2604,10 @@
       }
     }
   }
+
+
+
+
+
+  
 })();

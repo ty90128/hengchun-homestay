@@ -1171,3 +1171,47 @@ main {
     flex: 1;
   }
 }
+
+.booking-deposit-card {
+  grid-column: 1 / -1;
+  padding: 18px;
+  background: #fff;
+  border-radius: 13px;
+}
+
+.booking-deposit-title {
+  display: block;
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.booking-deposit-field {
+  margin-top: 14px;
+}
+
+.booking-deposit-field > span {
+  display: block;
+  margin-bottom: 7px;
+  font-weight: 600;
+}
+
+.booking-deposit-field select,
+.booking-deposit-field input {
+  width: 100%;
+  padding: 11px;
+  color: #2d2824;
+  background: #fff;
+  border: 1px solid #d9cdc5;
+  border-radius: 9px;
+}
+
+.booking-deposit-description {
+  margin: 14px 0 0;
+  color: #766b64;
+  font-size: 14px;
+}
+
+[hidden] {
+  display: none !important;
+}
