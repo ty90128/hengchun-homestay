@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="恆春墾丁特色民宿介紹，包含房型、價格、設備、入住資訊與完整相簿。">
+  <title>恆春墾丁民宿｜完整介紹</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&family=Noto+Serif+TC:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header" id="top">
+  <div class="container nav-wrap">
+    <a class="brand" href="#top" aria-label="恆春墾丁民宿首頁"><img src="assets/hengchun-logo.svg" alt="恆春墾丁民宿 Hengchun Kenting"></a>
+    <button class="menu-toggle" aria-label="開啟選單" aria-expanded="false">☰</button>
+    <nav class="main-nav">
+      <a href="#intro">民宿簡介</a>
+      <a href="#stays">民宿介紹</a>
+      <a href="#compare">價格比較</a>
+      <a href="#notice">訂房須知</a>
+      <a class="nav-cta" href="#contact">聯絡我們</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero" aria-label="恆春墾丁民宿形象主視覺">
+    <img src="assets/hengchun-main-banner.png" alt="恆春墾丁民宿，陽光、泳池、歡笑、美好時光">
+  </section>
+  <div class="hero-actions-bar">
+    <div class="container">
+      <a class="primary-button" href="#stays">查看五館</a>
+      <a class="secondary-button" href="#compare">比較價格</a>
+    </div>
+  </div>
+
+  <section class="section intro" id="intro">
+    <div class="container narrow center">
+      <p class="section-kicker">ABOUT OUR STAYS</p>
+      <h2>恆春民宿簡介</h2>
+      <p class="lead">我們精選恆春墾丁的特色住宿，從峇里島 Villa、庭園包棟、親子民宿到庭園木屋，<br>每一間都有不同的風格與特色，滿足情侶、家庭、好友聚會及團體旅遊等不同住宿需求。</p>
+      <p class="lead">無論您想享受私人泳池、親子戲水、烤肉聚會，或是沉浸於自然景觀與悠閒氛圍，<br>都能在這裡找到最適合您的度假空間。</p>
+    </div>
+  </section>
+
+  <section class="section section-soft" id="stays">
+    <div class="container">
+      <div class="section-heading"><div><p class="section-kicker">OUR B&amp;B</p><h2>各間民宿介紹</h2></div><p>點選「查看完整介紹」，<br>可瀏覽該館所有公共設施、夜景、房間照片、價格與入住資訊。</p></div>
+      <div class="stay-grid" id="stayGrid"></div>
+    </div>
+  </section>
+
+  <section class="section" id="compare">
+    <div class="container">
+      <div class="section-heading"><div><p class="section-kicker">QUICK COMPARE</p><h2>不知道怎麼選？</h2></div><p>依照入住人數、房型與預算，快速找到最適合您的住宿。</p></div>
+      <div class="table-shell"><table><thead><tr><th>民宿名稱</th><th>包棟人數</th><th>房型</th><th>旺季【6~9月】價格</th><th>淡季【10~5月】價格</th></tr></thead><tbody id="compareBody"></tbody></table></div>
+      <div class="price-notes"><p>※ 以上報價不適用於春節、音樂祭、特殊節日。農曆春節、特殊假日及連假期間：價格另計。</p><p>※ 週日入住等同平日價格。</p></div>
+    </div>
+  </section>
+
+  <section class="section section-dark" id="notice">
+    <div class="container">
+      <div class="section-heading light"><div><p class="section-kicker">BOOKING NOTICE</p><h2>訂房須知與入住資訊</h2></div><p>訂房前請確認以下說明，各館詳細規則可在民宿完整介紹中查看。</p></div>
+      <div class="notice-grid">
+        <article class="notice-card"><span>01</span><h3>訂房訂金</h3><p>訂房需支付 50% 訂金，完成匯款後才算保留房間。</p></article>
+        <article class="notice-card"><span>02</span><h3>入住付款</h3><p>餘款於入住當天辦理入住時支付。</p></article>
+        <article class="notice-card"><span>03</span><h3>攜帶寵物</h3><p>如需攜帶寵物，請於訂房前先與我們確認。</p></article>
+        <article class="notice-card"><span>04</span><h3>入住前資訊</h3><p>入住時間為 3PM 後。<br>入住前一天，民宿管家將提供具體位置與導航、<br>停車資訊、入住方式及當日聯絡電話。</p></article>
+        <article class="notice-card"><span>05</span><h3>退房加時</h3><p>標準退房時間為 11AM。<br>如需延後退房，請提前告知。</p></article>
+        <article class="notice-card"><span>06</span><h3>聯絡服務</h3><p>若有任何問題，歡迎隨時與我們聯繫，<br>我們將竭誠為您服務。</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section contact" id="contact">
+    <div class="container contact-wrap"><div><p class="section-kicker">CONTACT US</p><h2>開始安排您的恆春假期</h2><p>訂房與房況請透過 LINE 或 Instagram 聯繫。</p></div><div class="contact-actions"><a class="primary-button" href="https://line.me/ti/p/~tina2001128" target="_blank" rel="noopener">LINE：tina2001128</a><a class="secondary-button" href="https://www.instagram.com/xav.yi_/" target="_blank" rel="noopener">IG：xav.yi_</a></div></div>
+  </section>
+</main>
+
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> 恆春墾丁民宿</p><button type="button" class="back-to-top" id="backToTop">回到頁首 ↑</button></div></footer>
+
+<div class="modal" id="stayModal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" data-close-modal></div>
+  <div class="modal-panel">
+    <button class="modal-close" data-close-modal aria-label="關閉">×</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <div class="lightbox-backdrop" data-close-lightbox></div>
+  <button class="lightbox-close" data-close-lightbox aria-label="關閉圖片">×</button>
+  <button class="lightbox-nav prev" data-lightbox-prev aria-label="上一張">‹</button>
+  <figure><img id="lightboxImage" alt=""><figcaption id="lightboxCaption"></figcaption></figure>
+  <button class="lightbox-nav next" data-lightbox-next aria-label="下一張">›</button>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
