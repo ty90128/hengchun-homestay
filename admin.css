@@ -6,6 +6,95 @@
   box-sizing: border-box;
 }
 
+.facility-selector {
+  padding: 16px;
+  background: #fff;
+  border-radius: 13px;
+}
+
+.facility-selector-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.facility-selector-head p {
+  margin: 4px 0 0;
+  color: #766b64;
+  font-size: 13px;
+}
+
+.facility-checkbox-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.facility-option {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 13px !important;
+  background: #eee5df !important;
+  border: 1px solid #d8c9bd;
+  border-radius: 999px !important;
+  cursor: pointer;
+}
+
+.facility-option input {
+  width: auto !important;
+  margin: 0 !important;
+}
+
+.facility-option:has(input:checked) {
+  color: #fff;
+  background: #956c55 !important;
+  border-color: #956c55;
+}
+
+.facility-create-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.facility-create-row input {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #d9cdc5;
+  border-radius: 9px;
+}
+
+.facility-manager {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #ddd0c7;
+}
+
+.facility-manage-item {
+  display: grid;
+  grid-template-columns:
+    44px 90px 90px minmax(180px, 1fr)
+    auto auto;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 12px;
+  background: #ece3dc;
+  border-radius: 12px;
+}
+
+.facility-manage-item input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d9cdc5;
+  border-radius: 8px;
+}
+
+
 :root {
   --bg: #f5f2ef;
   --paper: #ffffff;
@@ -563,6 +652,24 @@ main {
 
 /* 手機 */
 @media (max-width: 800px) {
+
+  .facility-selector-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .facility-create-row {
+    grid-template-columns: 1fr;
+  }
+
+  .facility-manage-item {
+    grid-template-columns: 40px 1fr;
+  }
+
+  .facility-manage-item > *:not(.drag-handle) {
+    grid-column: 1 / -1;
+  }
+
   .admin-header {
     align-items: flex-start;
     flex-direction: column;

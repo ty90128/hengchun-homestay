@@ -200,7 +200,7 @@
         <label>館別<input id="no_label" placeholder="例如：六館" required></label>
         <label>顯示順序<input id="sort_order" type="number" value="0" required></label>
         <label class="wide">民宿名稱<input id="name" required></label>
-        <label>網址代號（英文）<input id="slug" pattern="[a-z0-9-]+" required></label>
+        <label>網址代號<input id="slug" pattern="[a-z0-9-]+" placeholder="系統自動產生" readonly></label>
         <label>類型標籤<input id="label" placeholder="包棟民宿"></label>
         <label>包棟人數<input id="capacity"></label>
         <label class="wide">房型<textarea id="room_types"></textarea></label>
@@ -210,7 +210,52 @@
         <label class="wide">入住押金<textarea id="security_deposit"></textarea></label>
         <label class="wide">訂房訂金<textarea id="booking_deposit"></textarea></label>
         <label class="wide">加床服務<textarea id="extra_bed"></textarea></label>
-        <label class="wide">設施（以逗號分隔）<textarea id="facilities"></textarea></label>
+        <div class="wide facility-selector">
+          <div class="facility-selector-head">
+            <div>
+              <strong>設施</strong>
+              <p>點選膠囊標籤，可複選。</p>
+            </div>
+
+            <button
+              type="button"
+              class="secondary"
+              id="toggleFacilityManagerBtn"
+            >
+              管理設施
+            </button>
+          </div>
+
+          <div
+            id="facilityCheckboxList"
+            class="facility-checkbox-list"
+          ></div>
+
+          <div class="facility-create-row">
+            <input
+              id="newFacilityName"
+              type="text"
+              placeholder="新增設施，例如：兒童遊戲區"
+            >
+
+            <button
+              type="button"
+              id="addFacilityBtn"
+            >
+              ＋新增設施
+            </button>
+          </div>
+
+          <div
+            id="facilityManager"
+            class="facility-manager"
+            hidden
+          >
+            <h4>設施管理與排序</h4>
+
+            <div id="facilityOptionList"></div>
+          </div>
+        </div>
         <label class="wide">旺季價格<textarea id="high_season_price" rows="5"></textarea></label>
         <label class="wide">淡季價格<textarea id="low_season_price" rows="5"></textarea></label>
         <label class="wide">價格備註<textarea id="note"></textarea></label>
