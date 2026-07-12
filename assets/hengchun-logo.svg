@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="150" viewBox="0 0 640 150" role="img" aria-labelledby="title desc">
+  <title id="title">恆春墾丁民宿</title>
+  <desc id="desc">以南國夕陽、屋頂與海浪構成的恆春墾丁民宿品牌標誌</desc>
+  <defs>
+    <linearGradient id="sun" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E9A35A"/>
+      <stop offset="1" stop-color="#C76F2D"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(8 7)">
+    <rect x="0" y="0" width="136" height="136" rx="38" fill="#FFF8EF" stroke="#E9D8C5" stroke-width="2"/>
+    <circle cx="68" cy="48" r="24" fill="url(#sun)"/>
+    <path d="M25 76 L68 42 L111 76" fill="none" stroke="#30483C" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M40 73 V101 H96 V73" fill="#FFF8EF" stroke="#30483C" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M19 109 C34 99 46 119 61 109 C76 99 88 119 103 109 C112 103 119 105 124 109" fill="none" stroke="#2E7C8E" stroke-width="7" stroke-linecap="round"/>
+    <path d="M27 122 C40 114 52 129 65 122 C78 114 90 129 103 122" fill="none" stroke="#73A9B1" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(168 26)">
+    <text x="0" y="43" fill="#2D2824" font-family="'Noto Serif TC','PingFang TC','Microsoft JhengHei',serif" font-size="42" font-weight="800" letter-spacing="5">恆春墾丁民宿</text>
+    <line x1="1" y1="61" x2="432" y2="61" stroke="#D7B18A" stroke-width="2"/>
+    <text x="1" y="91" fill="#7A6758" font-family="Arial,'Noto Sans TC',sans-serif" font-size="17" font-weight="700" letter-spacing="5">HENGCHUN · KENTING STAY</text>
+    <text x="1" y="116" fill="#A2744D" font-family="'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif" font-size="14" font-weight="600" letter-spacing="3">SUN · POOL · VILLA</text>
+  </g>
+</svg>
