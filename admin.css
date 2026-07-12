@@ -1,3 +1,22 @@
+/*
+ * admin.css｜恆春民宿管理後台樣式
+ *
+ * 區段索引：
+ * 01. 全域設定與色彩變數
+ * 02. 登入頁
+ * 03. 後台框架與分頁
+ * 04. 民宿清單與表單
+ * 05. 類型與設施管理
+ * 06. 封面與相簿管理
+ * 07. 動態內容管理
+ * 08. 拖曳排序狀態
+ * 09. 響應式版面
+ *
+ * 備註：
+ * - 為避免任何畫面變動，保留原有選擇器與覆蓋順序。
+ * - 僅統一格式並補上說明註解。
+ */
+
 [hidden] {
   display: none !important;
 }
@@ -10,6 +29,333 @@
   padding: 16px;
   background: #fff;
   border-radius: 13px;
+}
+
+.admin-photo {
+  position: relative;
+  cursor: default;
+}
+
+.photo-drag-handle {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  color: #4f443e;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 9px;
+  cursor: grab;
+}
+
+.photo-drag-handle:active {
+  cursor: grabbing;
+}
+
+.gallery-heading h3 {
+  margin-bottom: 4px;
+}
+
+.gallery-heading p {
+  margin: 0 0 14px;
+  color: #766b64;
+  font-size: 13px;
+}
+
+.gallery-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.gallery-tab {
+  color: #5a493f;
+  background: #eee5df;
+}
+
+.gallery-tab.active {
+  color: #fff;
+  background: #956c55;
+}
+
+.gallery-current-label {
+  margin: 14px 0;
+  color: #766b64;
+}
+
+.gallery-empty {
+  grid-column: 1 / -1;
+  padding: 30px;
+  color: #766b64;
+  background: #f1eae5;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.admin-photo {
+  position: relative;
+}
+
+.photo-drag-handle {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  color: #4f443e;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 9px;
+  cursor: grab;
+}
+
+.photo-drag-handle:active {
+  cursor: grabbing;
+}
+
+.type-selector-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.type-selector-head p {
+  margin: 4px 0 0;
+  color: #766b64;
+  font-size: 13px;
+}
+
+.type-selector-card {
+  grid-column: 1 / -1;
+  padding: 14px;
+  background: #fff;
+  border-radius: 13px;
+}
+
+.type-selector-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.type-selector-head strong {
+  display: block;
+  font-weight: 700;
+}
+
+.type-selector-head p {
+  margin: 4px 0 0;
+  color: #766b64;
+  font-size: 13px;
+}
+
+.type-selector-head button {
+  width: auto;
+  flex-shrink: 0;
+}
+
+.type-selector-card > select {
+  width: 100%;
+  padding: 11px;
+  color: #2d2824;
+  background: #fff;
+  border: 1px solid #d9cdc5;
+  border-radius: 9px;
+}
+
+.stay-type-manager {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #ddd0c7;
+}
+
+.stay-type-manager h4 {
+  margin: 18px 0 12px;
+}
+
+.stay-type-create-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.stay-type-create-row input {
+  width: 100%;
+  padding: 11px;
+  background: #fff;
+  border: 1px solid #d9cdc5;
+  border-radius: 9px;
+}
+
+.stay-type-create-row button {
+  white-space: nowrap;
+}
+
+.stay-type-manage-item {
+  display: grid;
+  grid-template-columns:
+    44px
+    90px
+    100px
+    minmax(180px, 1fr)
+    auto
+    auto;
+  gap: 10px;
+  align-items: end;
+  margin-bottom: 10px;
+  padding: 14px;
+  background: #ece3dc;
+  border-radius: 12px;
+}
+
+.stay-type-manage-item input {
+  width: 100%;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #d9cdc5;
+  border-radius: 8px;
+}
+
+@media (max-width: 800px) {
+  .type-selector-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .stay-type-create-row {
+    grid-template-columns: 1fr;
+  }
+
+  .stay-type-manage-item {
+    grid-template-columns: 40px 1fr;
+  }
+
+  .stay-type-manage-item > *:not(.drag-handle) {
+    grid-column: 1 / -1;
+  }
+}
+
+.stay-type-manager {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #ddd0c7;
+}
+
+.stay-type-manager h4 {
+  margin: 20px 0 12px;
+}
+
+.stay-type-create-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.stay-type-create-row input {
+  width: 100%;
+  padding: 11px;
+  background: #fff;
+  border: 1px solid #d9cdc5;
+  border-radius: 9px;
+}
+
+.stay-type-manage-item {
+  display: grid;
+  grid-template-columns:
+    44px
+    90px
+    110px
+    minmax(180px, 1fr)
+    auto
+    auto;
+  gap: 10px;
+  align-items: end;
+  margin-bottom: 10px;
+  padding: 14px;
+  background: #ece3dc;
+  border-radius: 12px;
+}
+
+.stay-type-manage-item input {
+  width: 100%;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #d9cdc5;
+  border-radius: 8px;
+}
+
+.stay-type-manage-item .checkbox {
+  align-self: center;
+}
+
+@media (max-width: 800px) {
+  .type-selector-head {
+    flex-direction: column;
+  }
+
+  .stay-type-create-row {
+    grid-template-columns: 1fr;
+  }
+
+  .stay-type-manage-item {
+    grid-template-columns: 40px 1fr;
+    align-items: center;
+  }
+
+  .stay-type-manage-item > *:not(.drag-handle) {
+    grid-column: 1 / -1;
+  }
+}
+
+.gallery-save-hint {
+  margin-top: 20px;
+  padding: 14px 16px;
+  color: #6b4d3d;
+  background: #eee5df;
+  border: 1px solid #d8c9bd;
+  border-radius: 12px;
+}
+
+.photo-delete-button {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background: #a93e35;
+}
+
+.admin-photo small {
+  display: block;
+  margin-top: 6px;
+  color: #766b64;
+}
+
+.photo-delete-button {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background: #a93e35;
+}
+
+.admin-photo small {
+  display: block;
+  margin-top: 6px;
+  color: #766b64;
 }
 
 .facility-selector-head {
@@ -94,7 +440,6 @@
   border-radius: 8px;
 }
 
-
 :root {
   --bg: #f5f2ef;
   --paper: #ffffff;
@@ -116,18 +461,18 @@ body {
   background: var(--bg);
 }
 
-.dynamic-item{
-    background:#ede5df;
-    border:1px solid #d8c9bd;
-    border-radius:16px;
-    padding:22px;
-    margin-bottom:20px;
-    transition:.2s;
+.dynamic-item {
+  background: #ede5df;
+  border: 1px solid #d8c9bd;
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 20px;
+  transition: 0.2s;
 }
 
-.dynamic-item:hover{
-    background:#e7ddd6;
-    border-color:#c8b6a7;
+.dynamic-item:hover {
+  background: #e7ddd6;
+  border-color: #c8b6a7;
 }
 
 button,
@@ -370,6 +715,68 @@ main {
   background: var(--success-bg);
   border-radius: 999px;
   font-size: 12px;
+}
+
+.cover-upload-card {
+  background: #fff;
+  padding: 18px;
+  border-radius: 14px;
+}
+
+.cover-title {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.cover-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cover-label {
+  font-size: 14px;
+  color: #6b625b;
+  font-weight: 600;
+}
+
+.cover-empty {
+  height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #d7ccc4;
+  border-radius: 12px;
+  color: #9b8d84;
+  background: #faf8f6;
+  margin-bottom: 16px;
+}
+
+.cover-preview {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.cover-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 18px 0;
+  color: #9b8d84;
+  font-size: 13px;
+}
+
+.cover-divider::before,
+.cover-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e2d7cf;
 }
 
 .status.off {
@@ -652,7 +1059,6 @@ main {
 
 /* 手機 */
 @media (max-width: 800px) {
-
   .facility-selector-head {
     align-items: flex-start;
     flex-direction: column;
@@ -765,4 +1171,3 @@ main {
     flex: 1;
   }
 }
-

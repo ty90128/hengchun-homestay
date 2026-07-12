@@ -1,3 +1,26 @@
+/**
+ * admin.js｜恆春民宿管理後台
+ *
+ * 功能索引：
+ * 01. Supabase 初始化與共用工具
+ * 02. 登入、註冊與忘記密碼
+ * 03. 全域狀態與表單欄位
+ * 04. 管理員權限與登入狀態
+ * 05. 民宿類型、設施與相簿排序
+ * 06. 民宿清單、編輯視窗與拖曳排序
+ * 07. 圖片上傳與 Banner 管理
+ * 08. 民宿儲存、封面與相簿管理
+ * 09. 首頁文字設定
+ * 10. 後台分頁切換
+ * 11. 價格備註管理
+ * 12. 訂房須知管理
+ * 13. 聯絡方式管理
+ * 14. 共用拖曳排序
+ *
+ * 備註：
+ * - 保留原有資料表名稱、DOM ID、功能邏輯與顯示文字。
+ * - 僅整理縮排、換行、區段與註解。
+ */
 
 (() => {
   // ============================================================
@@ -97,6 +120,10 @@
     settings = [],
     editing = null;
   let facilityOptions = [];
+  let stayTypeOptions = [];
+  let stayTypeSortable = null;
+  let activeGalleryCategory = "day";
+  let gallerySortable = null;
   let selectedFacilityIds = [];
   let facilitySortable = null;
   $("name").addEventListener("input", () => {
@@ -121,7 +148,6 @@
     "high_season_price",
     "low_season_price",
     "note",
-    "cover_image_url",
     "is_published",
   ];
   function toast(msg) {
@@ -176,6 +202,7 @@
         loadBookingNotices(),
         loadContactLinks(),
         loadFacilityOptions(),
+        loadStayTypeOptions(),
       ]);
     } catch (error) {
       console.error("後台資料載入失敗：", error);
@@ -251,6 +278,394 @@
     renderFacilityManager();
   }
 
+  async function loadStayTypeOptions() {
+    const { data, error } = await db
+      .from("stay_type_options")
+      .select("*")
+      .order("sort_order");
+
+    if (error) {
+      alert(`類型載入失敗：${error.message}`);
+      return;
+    }
+
+    stayTypeOptions = data || [];
+
+    renderStayTypeSelect();
+
+    const manager = $("stayTypeManager");
+
+    if (manager && !manager.hidden) {
+      renderStayTypeManager();
+    }
+  }
+  function initGallerySortable() {
+    const container = $("adminGallery");
+
+    if (!container || typeof Sortable === "undefined") {
+      return;
+    }
+
+    if (gallerySortable) {
+      gallerySortable.destroy();
+    }
+
+    gallerySortable = Sortable.create(container, {
+      animation: 180,
+      handle: ".photo-drag-handle",
+      ghostClass: "sortable-ghost",
+      chosenClass: "sortable-chosen",
+      dragClass: "sortable-drag",
+
+      onEnd: async () => {
+        await saveGalleryOrder();
+      },
+    });
+  }
+  async function saveGalleryOrder() {
+    const items = [
+      ...$("adminGallery").querySelectorAll("[data-gallery-image-id]"),
+    ];
+
+    const counters = {
+      day: 0,
+      night: 0,
+      room: 0,
+    };
+
+    const imageMap = new Map(
+      (editing?.stay_images || []).map((image) => [image.id, image]),
+    );
+
+    const updates = items.map((item) => {
+      const id = item.dataset.galleryImageId;
+      const image = imageMap.get(id);
+      const category = image?.category || "day";
+
+      counters[category] = (counters[category] || 0) + 1;
+
+      return {
+        id,
+        sort_order: counters[category],
+      };
+    });
+
+    try {
+      await Promise.all(
+        updates.map(async (row) => {
+          const { error } = await db
+            .from("stay_images")
+            .update({
+              sort_order: row.sort_order,
+            })
+            .eq("id", row.id);
+
+          if (error) {
+            throw error;
+          }
+        }),
+      );
+
+      toast("照片順序已更新");
+
+      await loadStays();
+
+      editing = stays.find((stay) => stay.id === editing?.id);
+
+      if (editing) {
+        renderGallery(editing);
+      }
+    } catch (error) {
+      alert(`照片排序失敗：${error.message}`);
+    }
+  }
+  function renderStayTypeSelect() {
+    const select = $("label");
+
+    if (!select) {
+      return;
+    }
+
+    const currentValue = select.value;
+
+    const options = stayTypeOptions
+      .filter((item) => item.is_active)
+      .sort((a, b) => a.sort_order - b.sort_order);
+
+    select.innerHTML = `
+    <option value="">請選擇類型</option>
+    ${options
+      .map(
+        (item) => `
+      <option value="${escapeHtml(item.name)}">
+        ${escapeHtml(item.name)}
+      </option>
+    `,
+      )
+      .join("")}
+  `;
+
+    if (currentValue && options.some((item) => item.name === currentValue)) {
+      select.value = currentValue;
+    }
+  }
+  const addStayTypeBtn = $("addStayTypeBtn");
+
+  if (addStayTypeBtn) {
+    addStayTypeBtn.addEventListener("click", async () => {
+      const input = $("newStayTypeName");
+      const name = input.value.trim();
+
+      if (!name) {
+        alert("請輸入類型名稱。");
+        input.focus();
+        return;
+      }
+
+      const duplicate = stayTypeOptions.some(
+        (item) => item.name.trim().toLowerCase() === name.toLowerCase(),
+      );
+
+      if (duplicate) {
+        alert("這個類型已經存在。");
+        return;
+      }
+
+      addStayTypeBtn.disabled = true;
+      addStayTypeBtn.textContent = "新增中…";
+
+      try {
+        const { error } = await db.from("stay_type_options").insert({
+          name,
+          sort_order: stayTypeOptions.length + 1,
+          is_active: true,
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        input.value = "";
+
+        await loadStayTypeOptions();
+
+        $("label").value = name;
+
+        toast("類型已新增");
+      } catch (error) {
+        alert(`新增失敗：${error.message}`);
+      } finally {
+        addStayTypeBtn.disabled = false;
+        addStayTypeBtn.textContent = "＋新增類型";
+      }
+    });
+  }
+  function renderStayTypeManager() {
+    const container = $("stayTypeOptionList");
+
+    if (!container) {
+      return;
+    }
+
+    container.innerHTML =
+      stayTypeOptions
+        .map(
+          (item) => `
+      <article
+        class="stay-type-manage-item"
+        data-stay-type-id="${item.id}"
+      >
+        <button
+          type="button"
+          class="drag-handle"
+          title="拖曳調整順序"
+        >
+          ☰
+        </button>
+
+        <label class="checkbox">
+          <input
+            type="checkbox"
+            data-stay-type-active="${item.id}"
+            ${item.is_active ? "checked" : ""}
+          >
+          啟用
+        </label>
+
+        <label>
+          排序
+          <input
+            type="number"
+            min="1"
+            value="${item.sort_order}"
+            data-stay-type-order="${item.id}"
+          >
+        </label>
+
+        <label class="stay-type-name-field">
+          類型名稱
+          <input
+            type="text"
+            value="${escapeHtml(item.name)}"
+            data-stay-type-name="${item.id}"
+          >
+        </label>
+
+        <button
+          type="button"
+          data-save-stay-type="${item.id}"
+        >
+          儲存
+        </button>
+
+        <button
+          type="button"
+          class="danger"
+          data-delete-stay-type="${item.id}"
+        >
+          刪除
+        </button>
+      </article>
+    `,
+        )
+        .join("") || "<p>目前尚無類型。</p>";
+
+    initStayTypeSortable();
+  }
+  $("stayTypeOptionList")?.addEventListener("click", async (event) => {
+    const saveButton = event.target.closest("[data-save-stay-type]");
+
+    const deleteButton = event.target.closest("[data-delete-stay-type]");
+
+    if (saveButton) {
+      const id = saveButton.dataset.saveStayType;
+
+      const name = document
+        .querySelector(`[data-stay-type-name="${id}"]`)
+        .value.trim();
+
+      const sortOrder = Number(
+        document.querySelector(`[data-stay-type-order="${id}"]`).value,
+      );
+
+      const isActive = document.querySelector(
+        `[data-stay-type-active="${id}"]`,
+      ).checked;
+
+      if (!name) {
+        alert("請輸入類型名稱。");
+        return;
+      }
+
+      const oldItem = stayTypeOptions.find((item) => item.id === id);
+
+      const { error } = await db
+        .from("stay_type_options")
+        .update({
+          name,
+          sort_order: sortOrder,
+          is_active: isActive,
+        })
+        .eq("id", id);
+
+      if (error) {
+        alert(`儲存失敗：${error.message}`);
+        return;
+      }
+
+      /*
+       * 如果類型名稱被修改，
+       * 同步更新所有正在使用舊名稱的民宿。
+       */
+      if (oldItem && oldItem.name !== name) {
+        const { error: stayError } = await db
+          .from("stays")
+          .update({ label: name })
+          .eq("label", oldItem.name);
+
+        if (stayError) {
+          alert(`類型已更新，但民宿同步失敗：${stayError.message}`);
+          return;
+        }
+      }
+
+      toast("類型已更新");
+      await Promise.all([loadStayTypeOptions(), loadStays()]);
+    }
+
+    if (deleteButton) {
+      const id = deleteButton.dataset.deleteStayType;
+
+      const item = stayTypeOptions.find((option) => option.id === id);
+
+      if (!confirm(`確定刪除「${item?.name || "這個類型"}」？`)) {
+        return;
+      }
+
+      /*
+       * 建議先確認是否有民宿正在使用，
+       * 避免刪除後民宿仍保留舊文字。
+       */
+      const { count, error: countError } = await db
+        .from("stays")
+        .select("id", {
+          count: "exact",
+          head: true,
+        })
+        .eq("label", item.name);
+
+      if (countError) {
+        alert(countError.message);
+        return;
+      }
+
+      if (count > 0) {
+        alert(`目前有 ${count} 間民宿使用這個類型，請先更換民宿類型後再刪除。`);
+        return;
+      }
+
+      const { error } = await db
+        .from("stay_type_options")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        alert(`刪除失敗：${error.message}`);
+        return;
+      }
+
+      toast("類型已刪除");
+      await loadStayTypeOptions();
+    }
+  });
+  function initStayTypeSortable() {
+    const container = $("stayTypeOptionList");
+
+    if (!container || typeof Sortable === "undefined") {
+      return;
+    }
+
+    if (stayTypeSortable) {
+      stayTypeSortable.destroy();
+    }
+
+    stayTypeSortable = Sortable.create(container, {
+      animation: 180,
+      handle: ".drag-handle",
+      ghostClass: "sortable-ghost",
+
+      onEnd: async () => {
+        await saveDraggedOrder({
+          container,
+          table: "stay_type_options",
+          itemSelector: "[data-stay-type-id]",
+          idAttribute: "stayTypeId",
+          orderInputAttribute: "data-stay-type-order",
+          reload: loadStayTypeOptions,
+        });
+      },
+    });
+  }
   function renderFacilityCheckboxes() {
     const container = $("facilityCheckboxList");
 
@@ -435,7 +850,18 @@
     editing = s || null;
 
     $("editTitle").textContent = s ? "編輯民宿" : "新增民宿";
+    const preview = $("coverPreview");
+    const empty = $("coverEmpty");
 
+    if (s?.cover_image_url) {
+      preview.src = s.cover_image_url;
+      preview.hidden = false;
+      empty.hidden = true;
+    } else {
+      preview.hidden = true;
+      preview.removeAttribute("src");
+      empty.hidden = false;
+    }
     $("stayForm").reset();
     $("stayId").value = s?.id || "";
 
@@ -457,9 +883,16 @@
     $("deleteStayBtn").style.visibility = s ? "visible" : "hidden";
 
     $("galleryManager").hidden = !s;
-
+    $("gallerySaveHint").hidden = Boolean(s);
     if (s) {
+      $("galleryManager").hidden = false;
+      $("gallerySaveHint").hidden = true;
+
+      activeGalleryCategory = "day";
       renderGallery(s);
+    } else {
+      $("galleryManager").hidden = true;
+      $("gallerySaveHint").hidden = false;
     }
 
     await loadSelectedFacilities(s?.id);
@@ -468,6 +901,18 @@
 
     if (manager) {
       manager.hidden = true;
+    }
+
+    const stayTypeManager = $("stayTypeManager");
+
+    if (stayTypeManager) {
+      stayTypeManager.hidden = true;
+    }
+
+    const toggleButton = $("toggleStayTypeManagerBtn");
+
+    if (toggleButton) {
+      toggleButton.textContent = "管理類型";
     }
 
     $("editModal").hidden = false;
@@ -479,6 +924,29 @@
   document.addEventListener("click", (e) => {
     if (e.target.closest("[data-close-edit]")) closeEdit();
   });
+
+  const toggleStayTypeManagerBtn = $("toggleStayTypeManagerBtn");
+
+  if (toggleStayTypeManagerBtn) {
+    toggleStayTypeManagerBtn.addEventListener("click", () => {
+      const manager = $("stayTypeManager");
+
+      if (!manager) {
+        console.error("找不到類型管理區塊：#stayTypeManager");
+        return;
+      }
+
+      manager.hidden = !manager.hidden;
+
+      toggleStayTypeManagerBtn.textContent = manager.hidden
+        ? "管理類型"
+        : "收合類型管理";
+
+      if (!manager.hidden) {
+        renderStayTypeManager();
+      }
+    });
+  }
   // ============================================================
   // 7. 圖片上傳與 Banner 管理
   // ============================================================
@@ -533,28 +1001,44 @@
   // ============================================================
   // 8. 民宿儲存、刪除與相簿管理
   // ============================================================
-  $("stayForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+  $("stayForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
     try {
+      const isEdit = Boolean(editing);
+
       const row = {};
-      fields.forEach((f) => {
-        const el = $(f);
-        row[f] =
-          el.type === "checkbox"
-            ? el.checked
-            : f === "sort_order"
-              ? Number(el.value)
-              : el.value.trim();
+
+      fields.forEach((field) => {
+        const element = $(field);
+
+        if (!element) {
+          console.warn(`找不到表單欄位：#${field}`);
+          return;
+        }
+
+        if (element.type === "checkbox") {
+          row[field] = element.checked;
+        } else if (field === "sort_order") {
+          row[field] = Number(element.value);
+        } else {
+          row[field] = element.value.trim();
+        }
       });
+
       if (!row.slug) {
         row.slug = generateSlug(row.name);
       }
+
       const file = $("coverFile").files[0];
-      if (file)
+
+      if (file) {
         row.cover_image_url = await uploadFile(
           file,
           `covers/${row.slug || "stay"}`,
         );
+      }
+
       let result;
 
       if (editing) {
@@ -574,12 +1058,42 @@
 
       await saveStayFacilities(result.data.id);
 
-      toast("民宿已儲存");
-      closeEdit();
       await loadStays();
-    } catch (err) {
-      alert(err.message);
+
+      editing = stays.find((stay) => stay.id === result.data.id);
+
+      if (!editing) {
+        throw new Error("民宿已儲存，但重新載入資料失敗。");
+      }
+
+      $("stayId").value = editing.id;
+      $("editTitle").textContent = "編輯民宿";
+      $("deleteStayBtn").style.visibility = "visible";
+
+      $("gallerySaveHint").hidden = true;
+      $("galleryManager").hidden = false;
+
+      activeGalleryCategory = "day";
+      renderGallery(editing);
+
+      if (isEdit) {
+        toast("✅ 民宿資料已更新");
+      } else {
+        toast("🎉 民宿新增完成，現在可以上傳相簿照片");
+      }
+    } catch (error) {
+      alert(error.message);
     }
+  });
+  $("coverFile").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    $("coverPreview").src = URL.createObjectURL(file);
+
+    $("coverPreview").hidden = false;
+    $("coverEmpty").hidden = true;
   });
   $("addFacilityBtn")?.addEventListener("click", async () => {
     const name = $("newFacilityName").value.trim();
@@ -786,18 +1300,95 @@
       await loadFacilityOptions();
     }
   });
-  function renderGallery(s) {
-    const imgs = (s.stay_images || []).sort(
-      (a, b) => a.sort_order - b.sort_order,
-    );
-    $("adminGallery").innerHTML =
-      imgs
-        .map(
-          (x) =>
-            `<div class="admin-photo"><img src="${x.image_url}"><button data-del-img="${x.id}" title="刪除">×</button><small>${x.category}</small></div>`,
-        )
-        .join("") || "<p>尚無相簿照片。</p>";
+  function getGalleryCategoryLabel(category) {
+    const labels = {
+      day: "公共區域｜白天",
+      night: "公共區域｜夜景",
+      room: "房間照片",
+    };
+
+    return labels[category] || category;
   }
+  function renderGallery(stay) {
+    const container = $("adminGallery");
+
+    if (!container) {
+      return;
+    }
+
+    const images = (stay?.stay_images || [])
+      .filter((image) => image.category === activeGalleryCategory)
+      .sort((a, b) => a.sort_order - b.sort_order);
+
+    const label = $("currentGalleryCategoryLabel");
+
+    if (label) {
+      label.textContent = getGalleryCategoryLabel(activeGalleryCategory);
+    }
+
+    document.querySelectorAll("[data-gallery-category]").forEach((button) => {
+      button.classList.toggle(
+        "active",
+        button.dataset.galleryCategory === activeGalleryCategory,
+      );
+    });
+
+    container.innerHTML =
+      images
+        .map(
+          (image) => `
+      <div
+        class="admin-photo"
+        data-gallery-image-id="${image.id}"
+      >
+        <button
+          type="button"
+          class="photo-drag-handle"
+          title="拖曳調整照片順序"
+          aria-label="拖曳調整照片順序"
+        >
+          ☰
+        </button>
+
+        <img
+          src="${escapeHtml(image.image_url)}"
+          alt="${escapeHtml(getGalleryCategoryLabel(image.category))}"
+        >
+
+        <button
+          type="button"
+          class="photo-delete-button"
+          data-del-img="${image.id}"
+          title="刪除照片"
+          aria-label="刪除照片"
+        >
+          ×
+        </button>
+
+        <small>
+          排序 ${image.sort_order}
+        </small>
+      </div>
+    `,
+        )
+        .join("") ||
+      `<p class="gallery-empty">
+      此分類目前沒有照片。
+    </p>`;
+
+    initGallerySortable();
+  }
+  $("galleryTabs")?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-gallery-category]");
+
+    if (!button || !editing) {
+      return;
+    }
+
+    activeGalleryCategory = button.dataset.galleryCategory;
+
+    renderGallery(editing);
+  });
   $("adminGallery").addEventListener("click", async (e) => {
     const b = e.target.closest("[data-del-img]");
     if (!b || !confirm("確定刪除這張照片？")) return;
@@ -812,36 +1403,125 @@
     renderGallery(editing);
   });
   $("uploadGalleryBtn").addEventListener("click", async () => {
-    if (!editing) return;
+    if (!editing) {
+      return;
+    }
+
     const files = [...$("galleryFiles").files];
-    if (!files.length) return alert("請先選擇照片。");
-    const category = $("imageCategory").value;
+
+    if (!files.length) {
+      alert("請先選擇照片。");
+      return;
+    }
+
+    const category = activeGalleryCategory;
+
     try {
+      const categoryImages = (editing.stay_images || []).filter(
+        (image) => image.category === category,
+      );
+
       const rows = [];
-      for (let i = 0; i < files.length; i++) {
+
+      for (let index = 0; index < files.length; index++) {
         const url = await uploadFile(
-          files[i],
+          files[index],
           `galleries/${editing.slug}/${category}`,
         );
+
         rows.push({
           stay_id: editing.id,
           category,
           image_url: url,
-          sort_order: (editing.stay_images?.length || 0) + i + 1,
+          sort_order: categoryImages.length + index + 1,
         });
       }
+
       const { error } = await db.from("stay_images").insert(rows);
-      if (error) throw error;
+
+      if (error) {
+        throw error;
+      }
+
       $("galleryFiles").value = "";
-      toast("照片已上傳");
+
+      toast(`${getGalleryCategoryLabel(category)}照片已上傳`);
+
       await loadStays();
-      editing = stays.find((s) => s.id === editing.id);
+
+      editing = stays.find((stay) => stay.id === editing.id);
+
       renderGallery(editing);
-    } catch (err) {
-      alert(err.message);
+    } catch (error) {
+      alert(`照片上傳失敗：${error.message}`);
     }
   });
+  function initGallerySortable() {
+    const container = $("adminGallery");
 
+    if (!container || typeof Sortable === "undefined") {
+      return;
+    }
+
+    if (gallerySortable) {
+      gallerySortable.destroy();
+    }
+
+    gallerySortable = Sortable.create(container, {
+      animation: 180,
+      handle: ".photo-drag-handle",
+      ghostClass: "sortable-ghost",
+      chosenClass: "sortable-chosen",
+      dragClass: "sortable-drag",
+
+      onEnd: async () => {
+        await saveCurrentGalleryOrder();
+      },
+    });
+  }
+  async function saveCurrentGalleryOrder() {
+    const items = [
+      ...$("adminGallery").querySelectorAll("[data-gallery-image-id]"),
+    ];
+
+    if (!items.length) {
+      return;
+    }
+
+    try {
+      const updates = items.map((item, index) => ({
+        id: item.dataset.galleryImageId,
+        sort_order: index + 1,
+      }));
+
+      await Promise.all(
+        updates.map(async (row) => {
+          const { error } = await db
+            .from("stay_images")
+            .update({
+              sort_order: row.sort_order,
+            })
+            .eq("id", row.id);
+
+          if (error) {
+            throw error;
+          }
+        }),
+      );
+
+      toast(`${getGalleryCategoryLabel(activeGalleryCategory)}排序已更新`);
+
+      await loadStays();
+
+      editing = stays.find((stay) => stay.id === editing?.id);
+
+      if (editing) {
+        renderGallery(editing);
+      }
+    } catch (error) {
+      alert(`照片排序失敗：${error.message}`);
+    }
+  }
   // ============================================================
   // 9. 首頁與聯絡區文字設定
   // ============================================================

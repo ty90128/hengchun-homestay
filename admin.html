@@ -1,283 +1,396 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>恆春民宿｜管理後台</title>
-<link rel="icon" type="image/png" href="/assets/hengchun-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="admin.css">
-</head>
-<body>
-<div id="toast" class="toast"></div>
-<section id="authView" class="auth-view">
-  <div class="auth-card">
-    <img src="assets/hengchun-logo.svg" alt="恆春民宿">
-    <h1>管理後台</h1>
-    <p>第一次使用請註冊。<br>系統會自動將<strong>第一個註冊帳號</strong>設為管理員。</p>
-    <form id="authForm">
-      <label>Email<input id="email" type="email" required autocomplete="email"></label>
-      <label>
-  密碼
-  <div class="password-wrap">
-    <input
-      id="password"
-      type="password"
-      minlength="8"
-      required
-      autocomplete="current-password"
-    >
-    <button
-      type="button"
-      class="password-toggle"
-      id="passwordToggle"
-      aria-label="顯示密碼"
-    >
-      顯示
-    </button>
-  </div>
-</label>
-      <button type="submit" id="loginBtn">登入</button>
-      <button type="button" class="secondary" id="signupBtn">註冊</button>
-      <button type="button" class="text-button" id="forgotPasswordBtn">忘記密碼？</button>
-    </form>
-    <a href="index.html">← 回前台網站</a>
-    <p class="setup-hint" id="setupHint"></p>
-  </div>
-</section>
-
-<div id="adminView" class="admin-view" hidden>
-<header class="admin-header"><div><strong>恆春民宿管理後台</strong><span id="userEmail"></span></div><div><a href="index.html" target="_blank">查看前台</a><button id="logoutBtn">登出</button></div></header>
-<div class="admin-layout">
- <aside>
-    <button class="tab active" data-tab="stays">民宿管理</button>
-    <button class="tab" data-tab="homepage">首頁設定</button>
-    <button class="tab" data-tab="price-notes">價格備註</button>
-    <button class="tab" data-tab="booking-notices">訂房須知</button>
-    <button class="tab" data-tab="contacts">聯絡方式</button>
-  </aside>
-  <main>
-    <section id="staysTab">
-      <div class="toolbar"><div><h1>民宿管理</h1><p>新增、修改、上下架、刪除與管理相簿。</p></div><button id="newStayBtn">＋ 新增民宿</button></div>
-      <div id="stayList" class="stay-admin-list"></div>
-    </section>
-    <section id="homepageTab" hidden>
-      <div class="toolbar">
-        <div>
-          <h1>首頁設定</h1>
-          <p>修改首頁 Banner、簡介與聯絡區文字。</p>
-        </div>
-
-        <button id="saveSettingsBtn">
-          儲存首頁設定
-        </button>
-      </div>
-
-      <form id="settingsForm" class="settings-form"></form>
-
-      <section class="dynamic-manager">
-        <div class="manager-heading">
-          <div>
-            <h2>首頁 Banner</h2>
-            <p>直接上傳圖片，不需要手動輸入網址。</p>
-          </div>
-        </div>
-
-        <div class="banner-manager">
-          <img
-            id="bannerPreview"
-            src="assets/hengchun-main-banner.png"
-            alt="Banner 預覽"
-          >
-
-          <input
-            id="bannerFile"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-          >
-
-          <button type="button" id="uploadBannerBtn">
-            上傳並更換 Banner
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>恆春民宿｜管理後台</title>
+    <link rel="icon" type="image/png" href="/assets/hengchun-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body>
+    <!-- =========================================================
+     1. 全域通知元件
+========================================================= -->
+    <div id="toast" class="toast"></div>
+    <!-- =========================================================
+     2. 後台登入／註冊畫面
+========================================================= -->
+    <section id="authView" class="auth-view">
+      <div class="auth-card">
+        <img src="assets/hengchun-logo.svg" alt="恆春民宿" />
+        <h1>管理後台</h1>
+        <p>
+          第一次使用請註冊。<br />系統會自動將<strong>第一個註冊帳號</strong>設為管理員。
+        </p>
+        <form id="authForm">
+          <label
+            >Email<input id="email" type="email" required autocomplete="email"
+          /></label>
+          <label>
+            密碼
+            <div class="password-wrap">
+              <input
+                id="password"
+                type="password"
+                minlength="8"
+                required
+                autocomplete="current-password"
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                id="passwordToggle"
+                aria-label="顯示密碼"
+              >
+                顯示
+              </button>
+            </div>
+          </label>
+          <button type="submit" id="loginBtn">登入</button>
+          <button type="button" class="secondary" id="signupBtn">註冊</button>
+          <button type="button" class="text-button" id="forgotPasswordBtn">
+            忘記密碼？
           </button>
-        </div>
-      </section>
-    </section>
-    <section id="homepageTab" hidden>
-      <div class="toolbar">
-        <div>
-          <h1>首頁設定</h1>
-          <p>修改首頁 Banner、簡介與聯絡區文字。</p>
-        </div>
-
-        <button id="saveSettingsBtn">
-          儲存首頁設定
-        </button>
+        </form>
+        <a href="index.html">← 回前台網站</a>
+        <p class="setup-hint" id="setupHint"></p>
       </div>
-
-      <form id="settingsForm" class="settings-form"></form>
-
-      <section class="dynamic-manager">
-        <div class="manager-heading">
-          <div>
-            <h2>首頁 Banner</h2>
-            <p>直接上傳圖片，不需要手動輸入網址。</p>
-          </div>
-        </div>
-
-        <div class="banner-manager">
-          <img
-            id="bannerPreview"
-            src="assets/hengchun-main-banner.png"
-            alt="Banner 預覽"
-          >
-
-          <input
-            id="bannerFile"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-          >
-
-          <button type="button" id="uploadBannerBtn">
-            上傳並更換 Banner
-          </button>
-        </div>
-      </section>
     </section>
-    <section id="priceNotesTab" hidden>
-      <div class="toolbar">
+
+    <!-- =========================================================
+     3. 登入後的後台主畫面
+========================================================= -->
+    <div id="adminView" class="admin-view" hidden>
+      <header class="admin-header">
+        <div><strong>恆春民宿管理後台</strong><span id="userEmail"></span></div>
         <div>
-          <h1>價格備註</h1>
-          <p>新增、刪除、排序及控制前台顯示。</p>
+          <a href="index.html" target="_blank">查看前台</a
+          ><button id="logoutBtn">登出</button>
         </div>
+      </header>
+      <div class="admin-layout">
+        <aside>
+          <button class="tab active" data-tab="stays">民宿管理</button>
+          <button class="tab" data-tab="homepage">首頁設定</button>
+          <button class="tab" data-tab="price-notes">價格備註</button>
+          <button class="tab" data-tab="booking-notices">訂房須知</button>
+          <button class="tab" data-tab="contacts">聯絡方式</button>
+        </aside>
+        <main>
+          <section id="staysTab">
+            <div class="toolbar">
+              <div>
+                <h1>民宿管理</h1>
+                <p>新增、修改、上下架、刪除與管理相簿。</p>
+              </div>
+              <button id="newStayBtn">＋ 新增民宿</button>
+            </div>
+            <div id="stayList" class="stay-admin-list"></div>
+          </section>
+          <section id="homepageTab" hidden>
+            <div class="toolbar">
+              <div>
+                <h1>首頁設定</h1>
+                <p>修改首頁 Banner、簡介與聯絡區文字。</p>
+              </div>
 
-        <button type="button" id="newPriceNoteBtn">
-          ＋新增價格備註
-        </button>
-      </div>
-
-      <div id="priceNoteList"></div>
-    </section>
-    <section id="bookingNoticesTab" hidden>
-      <div class="toolbar">
-        <div>
-          <h1>訂房須知</h1>
-          <p>管理前台的訂房與入住資訊。</p>
-        </div>
-
-        <button type="button" id="newBookingNoticeBtn">
-          ＋新增訂房須知
-        </button>
-      </div>
-
-      <div id="bookingNoticeList"></div>
-    </section>
-    <section id="contactsTab" hidden>
-      <div class="toolbar">
-        <div>
-          <h1>聯絡方式</h1>
-          <p>管理 LINE、Instagram、電話及其他連結。</p>
-        </div>
-
-        <button type="button" id="newContactLinkBtn">
-          ＋新增聯絡方式
-        </button>
-      </div>
-
-      <div id="contactLinkList"></div>
-    </section>
-  </main>
-</div>
-</div>
-
-<div id="editModal" class="edit-modal" hidden>
-  <div class="edit-backdrop" data-close-edit></div>
-  <div class="edit-panel">
-    <button class="x" data-close-edit>×</button>
-    <h2 id="editTitle">編輯民宿</h2>
-    <form id="stayForm">
-      <input type="hidden" id="stayId">
-      <div class="form-grid">
-        <label>館別<input id="no_label" placeholder="例如：六館" required></label>
-        <label>顯示順序<input id="sort_order" type="number" value="0" required></label>
-        <label class="wide">民宿名稱<input id="name" required></label>
-        <label>網址代號<input id="slug" pattern="[a-z0-9-]+" placeholder="系統自動產生" readonly></label>
-        <label>類型標籤<input id="label" placeholder="包棟民宿"></label>
-        <label>包棟人數<input id="capacity"></label>
-        <label class="wide">房型<textarea id="room_types"></textarea></label>
-        <label class="wide">地址<textarea id="address"></textarea></label>
-        <label>入住時間<textarea id="checkin"></textarea></label>
-        <label>退房時間<textarea id="checkout"></textarea></label>
-        <label class="wide">入住押金<textarea id="security_deposit"></textarea></label>
-        <label class="wide">訂房訂金<textarea id="booking_deposit"></textarea></label>
-        <label class="wide">加床服務<textarea id="extra_bed"></textarea></label>
-        <div class="wide facility-selector">
-          <div class="facility-selector-head">
-            <div>
-              <strong>設施</strong>
-              <p>點選膠囊標籤，可複選。</p>
+              <button id="saveSettingsBtn">儲存首頁設定</button>
             </div>
 
-            <button
-              type="button"
-              class="secondary"
-              id="toggleFacilityManagerBtn"
+            <form id="settingsForm" class="settings-form"></form>
+
+            <section class="dynamic-manager">
+              <div class="manager-heading">
+                <div>
+                  <h2>首頁 Banner</h2>
+                  <p>直接上傳圖片，不需要手動輸入網址。</p>
+                </div>
+              </div>
+
+              <div class="banner-manager">
+                <img
+                  id="bannerPreview"
+                  src="assets/hengchun-main-banner.png"
+                  alt="Banner 預覽"
+                />
+
+                <input
+                  id="bannerFile"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                />
+
+                <button type="button" id="uploadBannerBtn">
+                  上傳並更換 Banner
+                </button>
+              </div>
+            </section>
+          </section>
+          <section id="priceNotesTab" hidden>
+            <div class="toolbar">
+              <div>
+                <h1>價格備註</h1>
+                <p>新增、刪除、排序及控制前台顯示。</p>
+              </div>
+
+              <button type="button" id="newPriceNoteBtn">＋新增價格備註</button>
+            </div>
+
+            <div id="priceNoteList"></div>
+          </section>
+          <section id="bookingNoticesTab" hidden>
+            <div class="toolbar">
+              <div>
+                <h1>訂房須知</h1>
+                <p>管理前台的訂房與入住資訊。</p>
+              </div>
+
+              <button type="button" id="newBookingNoticeBtn">
+                ＋新增訂房須知
+              </button>
+            </div>
+
+            <div id="bookingNoticeList"></div>
+          </section>
+          <section id="contactsTab" hidden>
+            <div class="toolbar">
+              <div>
+                <h1>聯絡方式</h1>
+                <p>管理 LINE、Instagram、電話及其他連結。</p>
+              </div>
+
+              <button type="button" id="newContactLinkBtn">
+                ＋新增聯絡方式
+              </button>
+            </div>
+
+            <div id="contactLinkList"></div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <!-- =========================================================
+     4. 民宿新增／編輯視窗
+========================================================= -->
+    <div id="editModal" class="edit-modal" hidden>
+      <div class="edit-backdrop" data-close-edit></div>
+      <div class="edit-panel">
+        <button class="x" data-close-edit>×</button>
+        <h2 id="editTitle">編輯民宿</h2>
+        <form id="stayForm">
+          <input type="hidden" id="stayId" />
+          <div class="form-grid">
+            <label
+              >館別/公司名稱<input
+                id="no_label"
+                placeholder="例如：六館"
+                required
+            /></label>
+            <label
+              >顯示順序<input id="sort_order" type="number" value="0" required
+            /></label>
+            <label class="wide">民宿名稱<input id="name" required /></label>
+            <label
+              >網址代號<input
+                id="slug"
+                pattern="[a-z0-9-]+"
+                placeholder="系統自動產生"
+                readonly
+            /></label>
+            <div class="wide type-selector-card">
+              <div class="type-selector-head">
+                <div>
+                  <strong>類型標籤</strong>
+                  <p>選擇此民宿的類型。</p>
+                </div>
+
+                <button
+                  type="button"
+                  class="secondary"
+                  id="toggleStayTypeManagerBtn"
+                >
+                  管理類型
+                </button>
+              </div>
+
+              <select id="label" required>
+                <option value="">請選擇類型</option>
+              </select>
+
+              <div id="stayTypeManager" class="stay-type-manager" hidden>
+                <div class="stay-type-create-row">
+                  <input
+                    id="newStayTypeName"
+                    type="text"
+                    placeholder="新增類型，例如：親子民宿"
+                  />
+
+                  <button type="button" id="addStayTypeBtn">＋新增類型</button>
+                </div>
+
+                <h4>類型管理與排序</h4>
+
+                <div id="stayTypeOptionList"></div>
+              </div>
+            </div>
+            <label>包棟人數<input id="capacity" /></label>
+            <label class="wide"
+              >房型<textarea id="room_types"></textarea>
+            </label>
+            <label class="wide">地址<textarea id="address"></textarea></label>
+            <label>入住時間<textarea id="checkin"></textarea></label>
+            <label>退房時間<textarea id="checkout"></textarea></label>
+            <label class="wide"
+              >入住押金<textarea id="security_deposit"></textarea>
+            </label>
+            <label class="wide"
+              >訂房訂金<textarea id="booking_deposit"></textarea>
+            </label>
+            <label class="wide"
+              >加床服務<textarea id="extra_bed"></textarea>
+            </label>
+            <div class="wide facility-selector">
+              <div class="facility-selector-head">
+                <div>
+                  <strong>設施</strong>
+                  <p>點選膠囊標籤，可複選。</p>
+                </div>
+
+                <button
+                  type="button"
+                  class="secondary"
+                  id="toggleFacilityManagerBtn"
+                >
+                  管理設施
+                </button>
+              </div>
+
+              <div
+                id="facilityCheckboxList"
+                class="facility-checkbox-list"
+              ></div>
+
+              <div class="facility-create-row">
+                <input
+                  id="newFacilityName"
+                  type="text"
+                  placeholder="新增設施，例如：兒童遊戲區"
+                />
+
+                <button type="button" id="addFacilityBtn">＋新增設施</button>
+              </div>
+
+              <div id="facilityManager" class="facility-manager" hidden>
+                <h4>設施管理與排序</h4>
+
+                <div id="facilityOptionList"></div>
+              </div>
+            </div>
+            <label class="wide"
+              >旺季價格<textarea id="high_season_price" rows="5"></textarea>
+            </label>
+            <label class="wide"
+              >淡季價格<textarea id="low_season_price" rows="5"></textarea>
+            </label>
+            <label class="wide">價格備註<textarea id="note"></textarea></label>
+            <label class="wide cover-card">
+              <span class="cover-title"> 封面圖片 </span>
+
+              <div id="coverEmpty" class="cover-empty">尚未上傳封面圖片</div>
+
+              <img
+                id="coverPreview"
+                class="cover-preview"
+                hidden
+                alt="封面預覽"
+              />
+
+              <input id="coverFile" type="file" accept="image/*" />
+
+              <small> 選擇圖片後按「儲存民宿」，封面會自動更新。 </small>
+            </label>
+            <label class="checkbox"
+              ><input id="is_published" type="checkbox" checked />
+              前台上架</label
             >
-              管理設施
+          </div>
+          <div class="form-actions">
+            <button type="button" class="danger" id="deleteStayBtn">
+              刪除民宿
             </button>
+            <div>
+              <button type="button" class="secondary" data-close-edit>
+                取消</button
+              ><button type="submit">儲存民宿</button>
+            </div>
           </div>
-
-          <div
-            id="facilityCheckboxList"
-            class="facility-checkbox-list"
-          ></div>
-
-          <div class="facility-create-row">
-            <input
-              id="newFacilityName"
-              type="text"
-              placeholder="新增設施，例如：兒童遊戲區"
-            >
-
-            <button
-              type="button"
-              id="addFacilityBtn"
-            >
-              ＋新增設施
-            </button>
-          </div>
-
-          <div
-            id="facilityManager"
-            class="facility-manager"
-            hidden
-          >
-            <h4>設施管理與排序</h4>
-
-            <div id="facilityOptionList"></div>
-          </div>
+        </form>
+        <div id="gallerySaveHint" class="gallery-save-hint" hidden>
+          請先儲存民宿基本資料，儲存後即可上傳相簿照片。
         </div>
-        <label class="wide">旺季價格<textarea id="high_season_price" rows="5"></textarea></label>
-        <label class="wide">淡季價格<textarea id="low_season_price" rows="5"></textarea></label>
-        <label class="wide">價格備註<textarea id="note"></textarea></label>
-        <label class="wide">封面圖片網址<input id="cover_image_url"></label>
-        <label class="wide upload-label">或上傳封面圖片<input id="coverFile" type="file" accept="image/*"></label>
-        <label class="checkbox"><input id="is_published" type="checkbox" checked> 前台上架</label>
+        <section id="galleryManager" hidden>
+          <hr />
+
+          <div class="gallery-heading">
+            <div>
+              <h3>相簿管理</h3>
+              <p>切換分類後，只顯示該分類照片。</p>
+            </div>
+          </div>
+
+          <div class="gallery-tabs" id="galleryTabs">
+            <button
+              type="button"
+              class="gallery-tab active"
+              data-gallery-category="day"
+            >
+              公共區域｜白天
+            </button>
+
+            <button
+              type="button"
+              class="gallery-tab"
+              data-gallery-category="night"
+            >
+              公共區域｜夜景
+            </button>
+
+            <button
+              type="button"
+              class="gallery-tab"
+              data-gallery-category="room"
+            >
+              房間照片
+            </button>
+          </div>
+
+          <div class="gallery-upload-row">
+            <input id="galleryFiles" type="file" accept="image/*" multiple />
+
+            <button id="uploadGalleryBtn" type="button">上傳至目前分類</button>
+          </div>
+
+          <p class="gallery-current-label">
+            目前分類：
+            <strong id="currentGalleryCategoryLabel"> 公共區域｜白天 </strong>
+          </p>
+
+          <div id="adminGallery" class="admin-gallery"></div>
+        </section>
       </div>
-      <div class="form-actions"><button type="button" class="danger" id="deleteStayBtn">刪除民宿</button><div><button type="button" class="secondary" data-close-edit>取消</button><button type="submit">儲存民宿</button></div></div>
-    </form>
-    <section id="galleryManager" hidden>
-      <hr><h3>相簿管理</h3>
-      <div class="gallery-upload-row">
-        <select id="imageCategory"><option value="day">公共區域｜白天</option><option value="night">公共區域｜夜景</option><option value="room">房間照片</option></select>
-        <input id="galleryFiles" type="file" accept="image/*" multiple>
-        <button id="uploadGalleryBtn" type="button">上傳照片</button>
-      </div>
-      <div id="adminGallery" class="admin-gallery"></div>
-    </section>
-  </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1/Sortable.min.js"></script>
-<script src="config.js"></script>
-<script src="admin.js"></script>
-</body></html>
+    </div>
+    <!-- =========================================================
+     5. 外部套件與後台程式
+========================================================= -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1/Sortable.min.js"></script>
+    <script src="config.js"></script>
+    <script src="admin.js"></script>
+  </body>
+</html>
