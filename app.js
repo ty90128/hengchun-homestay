@@ -168,14 +168,83 @@
     grid.innerHTML = stays
       .map((s, i) => {
         const total = 1 + (s.stay_images?.length || 0);
-        return `<article class="stay-card" data-index="${i}" tabindex="0" role="button" aria-label="查看 ${esc(s.name)} 完整介紹">
-        <div class="stay-visual"><img src="${esc(s.cover_image_url)}" alt="${esc(s.name)}封面照片" loading="lazy">
-        <span class="stay-no">${esc(s.no_label)}</span><span class="photo-count">${total} 張照片</span></div>
-        <div class="stay-content"><h3>${esc(s.name)}</h3><p class="stay-type">${esc(s.label)}</p>
-        <div class="stay-facts"><div class="fact"><small>包棟人數</small><strong>${esc(s.capacity)}</strong></div>
-        <div class="fact"><small>入住時間</small><strong>${esc((s.checkin || "").split("(")[0].trim())}</strong></div>
-        <div class="fact"><small>退房時間</small><strong>${esc((s.checkout || "").split("(")[0].trim())}</strong></div></div>
-        <p class="stay-room">${esc(s.room_types)}</p><button class="card-button" type="button">查看完整介紹與相片</button></div></article>`;
+        return `
+          <article
+            class="stay-card"
+            data-index="${i}"
+            tabindex="0"
+            role="button"
+            aria-label="查看 ${esc(s.name)} 完整介紹"
+          >
+            <div class="stay-visual">
+              <img
+                src="${esc(s.cover_image_url)}"
+                alt="${esc(s.name)}封面照片"
+                loading="lazy"
+              >
+
+              <span class="stay-no">
+                ${esc(s.no_label)}
+              </span>
+
+              <span class="photo-count">
+                ${total} 張照片
+              </span>
+            </div>
+
+            <div class="stay-content">
+              <h3>${esc(s.name)}</h3>
+
+              <p class="stay-type">
+                ${esc(s.label)}
+              </p>
+
+              <div class="stay-facts">
+                <div class="fact">
+                  <small>包棟人數</small>
+                  <strong>${esc(s.capacity)}</strong>
+                </div>
+
+                <div class="fact">
+                  <small>入住時間</small>
+                  <strong>
+                    ${esc(
+                      String(s.checkin || "")
+                        .split(/\r?\n/)[0]
+                        .split("※")[0]
+                        .split(/[（(]/)[0]
+                        .trim()
+                    )}
+                  </strong>
+                </div>
+
+                <div class="fact">
+                  <small>退房時間</small>
+                  <strong>
+                    ${esc(
+                      String(s.checkout || "")
+                        .split(/\r?\n/)[0]
+                        .split("※")[0]
+                        .split(/[（(]/)[0]
+                        .trim()
+                    )}
+                  </strong>
+                </div>
+              </div>
+
+              <p class="stay-room">
+                ${esc(s.room_types)}
+              </p>
+
+              <button
+                class="card-button"
+                type="button"
+              >
+                查看完整介紹與相片
+              </button>
+            </div>
+          </article>
+        `;
       })
       .join("");
     compare.innerHTML = stays

@@ -864,6 +864,28 @@
     stays = data || [];
     renderStays();
   }
+
+  const formatPrice = (value, slug = "") => {
+    const safe = esc(value || "");
+    return slug === "lijing"
+      ? safe
+      : safe.replaceAll("、", "\n");
+  };
+
+  function getCardTime(value = "") {
+    const text = String(value).trim();
+
+    if (!text) {
+      return "";
+    }
+
+    return text
+      .split(/\r?\n/)[0]
+      .split("※")[0]
+      .split(/[（(]/)[0]
+      .trim();
+  }
+
   function renderStays() {
     $("stayList").innerHTML =
       stays
