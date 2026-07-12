@@ -1,0 +1,10 @@
+
+.loading-state{padding:28px;text-align:center;color:#745f52}
+.admin-link{margin-right:18px;color:inherit;text-decoration:none;font-size:14px}
+.error-banner{max-width:900px;margin:30px auto;padding:20px;border:1px solid #d58b76;background:#fff3ef;border-radius:14px;color:#7b2f21}
+.empty-state{grid-column:1/-1;padding:36px;text-align:center;background:#fff;border-radius:18px}
+
+.admin-link{display:inline-block;margin-right:16px;color:inherit;text-decoration:none;font-size:14px}
+.loading-state{padding:30px;text-align:center;color:#745f52}
+.error-banner{max-width:900px;margin:20px auto;padding:20px;border:1px solid #d58b76;background:#fff3ef;border-radius:14px;color:#7b2f21}
+.empty-state{grid-column:1/-1;padding:36px;text-align:center;background:#fff;border-radius:18px}
