@@ -967,9 +967,29 @@
       },
     });
   }
-  $("stayList").addEventListener("click", (e) => {
-    const b = e.target.closest("[data-edit]");
-    if (b) openEdit(stays.find((s) => s.id === b.dataset.edit));
+  $("stayList").addEventListener("click", (event) => {
+    const card = event.target.closest(".admin-stay-card");
+
+    if (!card) {
+      return;
+    }
+
+    // 點到拖曳按鈕時，不開啟編輯
+    if (event.target.closest(".drag-handle")) {
+      return;
+    }
+
+    const stayId = card.dataset.stayId;
+
+    const stay = stays.find(
+      (item) => item.id === stayId
+    );
+
+    if (!stay) {
+      return;
+    }
+
+    openEdit(stay);
   });
   $("newStayBtn").addEventListener("click", () => openEdit(null));
   async function openEdit(s) {
