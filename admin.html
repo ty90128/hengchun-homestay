@@ -199,7 +199,6 @@
             <label
               >網址代號<input
                 id="slug"
-                pattern="[a-z0-9-]+"
                 placeholder="系統自動產生"
                 readonly
             /></label>
@@ -240,18 +239,42 @@
               </div>
             </div>
             <label>包棟人數<input id="capacity" /></label>
-            <label class="wide"
-              >房型<textarea id="room_types"></textarea>
-            </label>
+            <div class="wide room-type-card">
+              <div class="room-type-head">
+                <div>
+                  <strong>房型</strong>
+                  <p>新增房型與數量，系統會自動組合顯示文字。</p>
+                </div>
+
+                <button type="button" id="addRoomTypeRowBtn">
+                  ＋新增房型
+                </button>
+              </div>
+
+              <div id="roomTypeRows"></div>
+
+              <input id="room_types" type="hidden">
+            </div>
             <label class="wide">地址<textarea id="address"></textarea></label>
             <label>入住時間<textarea id="checkin"></textarea></label>
             <label>退房時間<textarea id="checkout"></textarea></label>
-            <label class="wide"
-              >入住押金<textarea id="security_deposit"></textarea>
+            <label>
+              入住押金金額
+              <input id="security_deposit_amount" placeholder="例如：10000">
             </label>
-            <label class="wide"
-              >訂房訂金<textarea id="booking_deposit"></textarea>
+
+            <label class="wide fixed-description">
+              固定說明
+              <span>退房時確認無蓄意破壞、室內抽菸等行徑，會全額退還的唷~</span>
             </label>
+            <input id="security_deposit" type="hidden">
+            
+            <label>
+              訂房訂金比例
+              <input id="booking_deposit_percent" placeholder="例如：50">
+            </label>
+            <input id="booking_deposit" type="hidden">
+
             <label class="wide"
               >加床服務<textarea id="extra_bed"></textarea>
             </label>

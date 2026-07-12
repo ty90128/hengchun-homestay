@@ -112,6 +112,44 @@
     }
   });
 
+  $("addRoomTypeRowBtn")?.addEventListener("click", () => {
+  roomTypeRows.push({
+    name: "",
+    count: 1
+  });
+
+  renderRoomTypeRows();
+});
+
+  $("roomTypeRows")?.addEventListener("input", event => {
+    const nameInput = event.target.closest("[data-room-name]");
+    const countInput = event.target.closest("[data-room-count]");
+
+    if (nameInput) {
+      const index = Number(nameInput.dataset.roomName);
+      roomTypeRows[index].name = nameInput.value;
+    }
+
+    if (countInput) {
+      const index = Number(countInput.dataset.roomCount);
+      roomTypeRows[index].count = Number(countInput.value) || 1;
+    }
+
+    updateRoomTypesValue();
+  });
+
+  $("roomTypeRows")?.addEventListener("click", event => {
+    const button = event.target.closest("[data-delete-room]");
+
+    if (!button) {
+      return;
+    }
+
+    const index = Number(button.dataset.deleteRoom);
+
+    roomTypeRows.splice(index, 1);
+    renderRoomTypeRows();
+  });
   // ============================================================
   // 3. 全域狀態與欄位設定
   // ============================================================
@@ -126,6 +164,7 @@
   let gallerySortable = null;
   let selectedFacilityIds = [];
   let facilitySortable = null;
+  let roomTypeRows = [];
   $("name").addEventListener("input", () => {
     if (!editing) {
       $("slug").value = generateSlug($("name").value);
@@ -158,6 +197,65 @@
   }
   function safeName(name) {
     return name.toLowerCase().replace(/[^a-z0-9._-]/g, "-");
+  }
+  function renderRoomTypeRows() {
+    const container = $("roomTypeRows");
+
+    container.innerHTML = roomTypeRows
+      .map(
+        (item, index) => `
+          <div class="room-type-row" data-room-index="${index}">
+            <input
+              type="text"
+              value="${escapeHtml(item.name || "")}"
+              placeholder="例如：四人房"
+              data-room-name="${index}"
+            >
+
+            <input
+              type="number"
+              min="1"
+              value="${item.count || 1}"
+              data-room-count="${index}"
+            >
+
+            <button
+              type="button"
+              class="danger"
+              data-delete-room="${index}"
+            >
+              刪除
+            </button>
+          </div>
+        `
+      )
+      .join("");
+
+    updateRoomTypesValue();
+  }
+
+  function updateRoomTypesValue() {
+    $("room_types").value = roomTypeRows
+      .filter(item => item.name.trim())
+      .map(item => `${item.name.trim()} ×${item.count}`)
+      .join("、");
+  }
+
+  function parseRoomTypes(value = "") {
+    if (!value.trim()) {
+      return [];
+    }
+
+    return value
+      .split("、")
+      .map(part => {
+        const match = part.trim().match(/^(.*?)\s*[×xX]\s*(\d+)$/);
+
+        return {
+          name: match ? match[1].trim() : part.trim(),
+          count: match ? Number(match[2]) : 1
+        };
+      });
   }
   // ============================================================
   // 4. 管理員驗證與登入狀態
@@ -875,10 +973,38 @@
       if (element.type === "checkbox") {
         element.checked = s ? Boolean(s[field]) : true;
       } else {
+        const defaultValues = {
+          note:
+            "以上報價不適用於春節、音樂祭、特殊節日。\n" +
+            "農曆春節、特殊假日及連假期間：價格另計。",
+
+          security_deposit:
+            "$15000（退房時確認無蓄意破壞、室內抽菸等行徑，會全額退還的唷~）",
+
+          booking_deposit:
+            "訂房價格的50%（完成匯款後才算保留房間）",
+
+          extra_bed:
+            "☒ / ☑ 平日$800/人、連續假日$1000/人"
+        };
+
         element.value =
-          s?.[field] ?? (field === "sort_order" ? stays.length + 1 : "");
+          s?.[field] ??
+          (field === "sort_order"
+            ? stays.length + 1
+            : defaultValues[field] || "");
       }
     });
+    roomTypeRows = parseRoomTypes(s?.room_types || "");
+
+    if (!roomTypeRows.length && !s) {
+      roomTypeRows = [
+        { name: "雙人房", count: 1 },
+        { name: "四人房", count: 1 }
+      ];
+    }
+
+    renderRoomTypeRows();
 
     $("deleteStayBtn").style.visibility = s ? "visible" : "hidden";
 
@@ -1004,6 +1130,7 @@
   $("stayForm").addEventListener("submit", async (event) => {
     event.preventDefault();
 
+    
     try {
       const isEdit = Boolean(editing);
 
@@ -1402,60 +1529,96 @@
     editing = stays.find((s) => s.id === editing.id);
     renderGallery(editing);
   });
-  $("uploadGalleryBtn").addEventListener("click", async () => {
-    if (!editing) {
+
+  $("uploadGalleryBtn")?.addEventListener("click", async () => {
+    const button = $("uploadGalleryBtn");
+    const fileInput = $("galleryFiles");
+
+    if (!editing?.id) {
+      alert("尚未取得民宿資料，請先儲存民宿。");
       return;
     }
 
-    const files = [...$("galleryFiles").files];
-
-    if (!files.length) {
-      alert("請先選擇照片。");
+    if (!fileInput) {
+      alert("找不到相簿照片欄位。");
       return;
     }
 
-    const category = activeGalleryCategory;
+    const files = Array.from(fileInput.files || []);
+
+    if (files.length === 0) {
+      alert("請先選擇要上傳的照片。");
+      return;
+    }
+
+    const category = activeGalleryCategory || "day";
+
+    button.disabled = true;
+    button.textContent = `上傳中 0/${files.length}`;
 
     try {
       const categoryImages = (editing.stay_images || []).filter(
-        (image) => image.category === category,
+        (image) => image.category === category
       );
 
       const rows = [];
 
       for (let index = 0; index < files.length; index++) {
-        const url = await uploadFile(
-          files[index],
-          `galleries/${editing.slug}/${category}`,
+        const file = files[index];
+
+        button.textContent =
+          `上傳中 ${index + 1}/${files.length}`;
+
+        const imageUrl = await uploadFile(
+          file,
+          `galleries/${editing.slug || editing.id}/${category}`
         );
 
         rows.push({
           stay_id: editing.id,
           category,
-          image_url: url,
-          sort_order: categoryImages.length + index + 1,
+          image_url: imageUrl,
+          sort_order: categoryImages.length + index + 1
         });
       }
 
-      const { error } = await db.from("stay_images").insert(rows);
+      const { error: insertError } = await db
+        .from("stay_images")
+        .insert(rows);
 
-      if (error) {
-        throw error;
+      if (insertError) {
+        throw insertError;
       }
 
-      $("galleryFiles").value = "";
-
-      toast(`${getGalleryCategoryLabel(category)}照片已上傳`);
+      fileInput.value = "";
 
       await loadStays();
 
-      editing = stays.find((stay) => stay.id === editing.id);
+      editing = stays.find(
+        (stay) => stay.id === editing.id
+      );
+
+      if (!editing) {
+        throw new Error("照片已上傳，但重新載入民宿資料失敗。");
+      }
 
       renderGallery(editing);
+
+      toast(
+        `✅ ${getGalleryCategoryLabel(category)}照片上傳成功`
+      );
     } catch (error) {
-      alert(`照片上傳失敗：${error.message}`);
+      console.error("相簿照片上傳失敗：", error);
+
+      alert(
+        `相簿照片上傳失敗：${error.message || "未知錯誤"}`
+      );
+    } finally {
+      button.disabled = false;
+      button.textContent = "上傳至目前分類";
     }
   });
+
   function initGallerySortable() {
     const container = $("adminGallery");
 
