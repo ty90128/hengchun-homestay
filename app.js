@@ -467,5 +467,31 @@
     ?.addEventListener("click", () =>
       window.scrollTo({ top: 0, behavior: "smooth" }),
     );
+  let frontendRefreshTimer = null;
+
+  function refreshFrontendAfterAdminSave() {
+    clearTimeout(frontendRefreshTimer);
+
+    frontendRefreshTimer = setTimeout(() => {
+      window.location.reload();
+    }, 350);
+  }
+
+  if ("BroadcastChannel" in window) {
+    const syncChannel = new BroadcastChannel("hengchun-site-sync");
+
+    syncChannel.addEventListener("message", (event) => {
+      if (event.data?.type === "content-updated") {
+        refreshFrontendAfterAdminSave();
+      }
+    });
+  }
+
+  window.addEventListener("storage", (event) => {
+    if (event.key === "hengchun-site-last-update") {
+      refreshFrontendAfterAdminSave();
+    }
+  });
+
   init();
 })();

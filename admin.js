@@ -205,11 +205,36 @@
     "note",
     "is_published",
   ];
+  function notifyFrontendChanged() {
+    try {
+      const channel = new BroadcastChannel("hengchun-site-sync");
+      channel.postMessage({
+        type: "content-updated",
+        time: Date.now()
+      });
+      channel.close();
+    } catch (error) {
+      console.warn("BroadcastChannel 不可用：", error);
+    }
+
+    try {
+      localStorage.setItem(
+        "hengchun-site-last-update",
+        String(Date.now())
+      );
+    } catch (error) {
+      console.warn("無法寫入前台更新通知：", error);
+    }
+  }
+
   function toast(msg) {
     const t = $("toast");
     t.textContent = msg;
     t.classList.add("show");
     setTimeout(() => t.classList.remove("show"), 2400);
+
+    // 後台每次成功儲存後，通知已開啟的前台分頁重新載入。
+    notifyFrontendChanged();
   }
   function safeName(name) {
     return name.toLowerCase().replace(/[^a-z0-9._-]/g, "-");
@@ -1081,58 +1106,52 @@
           ? securityMatch[1].replace(/,/g, "")
           : "";
 
-      const bookingMatch = String(s.booking_deposit || "")
-        .match(/(\d+)%/);
-
-      $("booking_deposit_percent").value =
-        bookingMatch
-          ? bookingMatch[1]
-          : "";
     } else {
       $("security_deposit_amount").value = "15000";
       $("booking_deposit_percent").value = "50";
     }
     // ============================================================
-    // 解析訂房訂金：比例或固定金額
+    // 解析訂房訂金：比例、固定金額或自訂文字
     // ============================================================
     if (s) {
-      const bookingText = String(
-        s.booking_deposit || ""
+      const bookingText = String(s.booking_deposit || "").trim();
+
+      const percentMatch = bookingText.match(/(\d+)\s*%/);
+      const fixedMatch = bookingText.match(
+        /固定訂金\s*\$?\s*([\d,]+)/
       );
-
-      const percentMatch =
-        bookingText.match(/(\d+)\s*%/);
-
-      const fixedMatch =
-        bookingText.match(
-          /固定訂金\s*\$?\s*([\d,]+)/
-        );
 
       if (percentMatch) {
         $("booking_deposit_type").value = "percent";
-        $("booking_deposit_percent").value =
-          percentMatch[1];
-
+        $("booking_deposit_percent").value = percentMatch[1];
         $("booking_deposit_amount").value = "";
+        $("booking_deposit_custom").value = "";
       } else if (fixedMatch) {
         $("booking_deposit_type").value = "fixed";
         $("booking_deposit_amount").value =
           fixedMatch[1].replace(/,/g, "");
-
         $("booking_deposit_percent").value = "";
+        $("booking_deposit_custom").value = "";
+      } else if (bookingText) {
+        $("booking_deposit_type").value = "custom";
+        $("booking_deposit_custom").value = bookingText
+          .replace(/（完成匯款後才算保留房間）\s*$/, "")
+          .trim();
+        $("booking_deposit_percent").value = "";
+        $("booking_deposit_amount").value = "";
       } else {
         $("booking_deposit_type").value = "percent";
         $("booking_deposit_percent").value = "50";
         $("booking_deposit_amount").value = "";
+        $("booking_deposit_custom").value = "";
       }
     } else {
-      // 新增民宿預設為比例制 50%
       $("booking_deposit_type").value = "percent";
       $("booking_deposit_percent").value = "50";
       $("booking_deposit_amount").value = "";
+      $("booking_deposit_custom").value = "";
     }
 
-    // 根據類型顯示正確欄位
     updateBookingDepositFields();
 
     roomTypeRows = parseRoomTypes(s?.room_types || "");
@@ -1317,13 +1336,20 @@
       const bookingAmount =
         $("booking_deposit_amount").value.trim();
 
+      const bookingCustom =
+        $("booking_deposit_custom").value.trim();
+
       if (bookingType === "percent") {
         row.booking_deposit = bookingPercent
           ? `訂房價格的${bookingPercent}%（完成匯款後才算保留房間）`
           : "";
-      } else {
+      } else if (bookingType === "fixed") {
         row.booking_deposit = bookingAmount
           ? `固定訂金 $${bookingAmount}（完成匯款後才算保留房間）`
+          : "";
+      } else {
+        row.booking_deposit = bookingCustom
+          ? `${bookingCustom}（完成匯款後才算保留房間）`
           : "";
       }
 
@@ -2262,22 +2288,20 @@ function updateBookingDepositFields() {
   const typeSelect = $("booking_deposit_type");
   const percentField = $("bookingDepositPercentField");
   const amountField = $("bookingDepositAmountField");
+  const customField = $("bookingDepositCustomField");
 
-  if (!typeSelect || !percentField || !amountField) {
+  if (!typeSelect || !percentField || !amountField || !customField) {
     console.warn("找不到訂金類型切換欄位");
     return;
   }
 
-  const isPercent = typeSelect.value === "percent";
+  const type = typeSelect.value;
 
-  // 比例制：顯示比例，隱藏固定金額
-  percentField.hidden = !isPercent;
-
-  // 固定金額：顯示金額，隱藏比例
-  amountField.hidden = isPercent;
+  percentField.hidden = type !== "percent";
+  amountField.hidden = type !== "fixed";
+  customField.hidden = type !== "custom";
 }
 
-// 只綁定一次
 $("booking_deposit_type")?.addEventListener(
   "change",
   updateBookingDepositFields

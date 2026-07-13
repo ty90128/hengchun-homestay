@@ -285,6 +285,10 @@
                   <option value="fixed">
                     固定金額
                   </option>
+
+                  <option value="custom">
+                    自訂文字
+                  </option>
                 </select>
               </div>
 
@@ -315,6 +319,20 @@
                   type="number"
                   min="0"
                   placeholder="例如：15000"
+                >
+              </div>
+
+              <div
+                id="bookingDepositCustomField"
+                class="booking-deposit-field"
+                hidden
+              >
+                <span>自訂訂金文字</span>
+
+                <input
+                  id="booking_deposit_custom"
+                  type="text"
+                  placeholder="例如：需要"
                 >
               </div>
 
