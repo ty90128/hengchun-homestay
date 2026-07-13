@@ -40,8 +40,18 @@
     return;
   }
 
-  const db = supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
-
+  const db = supabase.createClient(
+    cfg.SUPABASE_URL,
+    cfg.SUPABASE_ANON_KEY,
+    {
+      auth: {
+        storage: window.sessionStorage,
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    }
+  );
   const $ = (id) => document.getElementById(id);
 
   function generateSlug(name = "") {
